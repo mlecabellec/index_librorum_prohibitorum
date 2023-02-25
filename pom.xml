@@ -9,9 +9,8 @@
 	<properties>
 		<maven.compile.source>11</maven.compile.source>
 		<maven.compile.target>11</maven.compile.target>
-		<app.main.class>fr.lecabellec.Main</app.main.class>
+		<app.main.class>fr.lecabellec.ilp.Main</app.main.class>
 	</properties>
-
 	<dependencies>
 		<!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
 		<dependency>
@@ -39,8 +38,6 @@
 		</dependency>
 
 	</dependencies>
-
-
 	<build>
 		<plugins>
 			<plugin>
@@ -130,7 +127,6 @@
 				<version>3.0.0</version>
 				<executions>
 					<execution>
-
 						<goals>
 							<goal>java</goal>
 						</goals>
@@ -149,12 +145,14 @@
 							<key>test</key>
 							<value>test</value>
 						</systemProperty>
-
 					</systemProperties>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.0.0-M9</version>
+			</plugin>
 		</plugins>
 	</build>
-
-
 </project>

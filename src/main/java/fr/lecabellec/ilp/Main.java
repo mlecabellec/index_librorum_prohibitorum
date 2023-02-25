@@ -1,7 +1,7 @@
 /**
  * 
  */
-package index_librorum_prohibitorum;
+package fr.lecabellec.ilp;
 
 /**
  * @author vortigern

@@ -1,4 +1,4 @@
-package index_librorum_prohibitorum;
+package fr.lecabellec.ilp;
 
 import java.nio.file.Path;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
