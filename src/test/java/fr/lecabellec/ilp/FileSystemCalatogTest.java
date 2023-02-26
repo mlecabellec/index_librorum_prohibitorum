@@ -3,18 +3,74 @@ package fr.lecabellec.ilp;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.math.BigInteger;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.junit.jupiter.api.Test;
 
+import fr.lecabellec.ilp.FileSystemCalatog.EnumPathItemType;
 
 class FileSystemCalatogTest {
 
   @Test
+  void testSomeIdeasAboutSerialization() {
+    TreeSet<PathItem> t1 = new TreeSet<>();
+    PathItem p1 = new PathItem(BigInteger.ONE, BigInteger.TEN, "/", EnumPathItemType.DIRECTORY);
+    t1.add(p1);
+
+    File f1;
+    try {
+      f1 = File.createTempFile("testSomeIdeas", "test1");
+    } catch (IOException e) {
+      fail("Error when creating temp file", e);
+      e.printStackTrace();
+      return;
+    }
+
+    try (FileOutputStream fos = new FileOutputStream(f1);
+        ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+      oos.writeObject(t1);
+      oos.flush();
+    } catch (IOException e) {
+      fail("Error when writng to file", e);
+      e.printStackTrace();
+      return;
+    }
+
+    assertTrue(f1.exists() && f1.isFile() && f1.length() > 0, "Having a file");
+
+    try (FileInputStream fis = new FileInputStream(f1);
+        ObjectInputStream ois = new ObjectInputStream(fis)) {
+      TreeSet<PathItem> t2;
+      Object o1 = ois.readObject();
+      assertTrue(TreeSet.class.isAssignableFrom(o1.getClass()), "Having a TreeSet");
+      t2 = (TreeSet<PathItem>) o1;
+
+      assertTrue(t2.size() == 1, "t2 has a PathItem");
+      assertTrue(t2.first().sha256.equals(BigInteger.ONE), "PathItem matches");
+      PathItem p2 = t2.first();
+      Logger.getAnonymousLogger().log(Level.INFO, "p1 = {0}", p1);
+      Logger.getAnonymousLogger().log(Level.INFO, "p2 = {0}", p2);
+
+    } catch (ClassNotFoundException | IOException e) {
+      fail("Error when reading to file", e);
+      e.printStackTrace();
+      return;
+    }
+
+  }
+
+  @Test
   void testGetSha256FromPath() {
-    
+
     BigInteger sha1 = FileSystemCalatog.getSha256FromPath("aaaaa");
     BigInteger sha2 = FileSystemCalatog.getSha256FromPath("aaaaa");
     BigInteger sha3 = FileSystemCalatog.getSha256FromPath("aaaab");
@@ -28,8 +84,7 @@ class FileSystemCalatogTest {
     Logger.getAnonymousLogger().log(Level.INFO, "sha3: {0}", sha3.toString(16));
     assertTrue(sha1.equals(sha2), "sha1 == sha2");
     assertTrue(!sha2.equals(sha3), "sha2 != sha3");
-    
-    
+
   }
 
   @Test
