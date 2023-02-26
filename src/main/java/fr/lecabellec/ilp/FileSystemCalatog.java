@@ -16,24 +16,72 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Logger;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class FileSystemCalatog.
+ */
 public class FileSystemCalatog implements Serializable, Comparable<FileSystemCalatog> {
 
+  /**
+   * The Enum EnumPathItemType.
+   */
   public enum EnumPathItemType {
-    DIRECTORY, FILE, OTHER, OTHER_LEAF, OTHER_NODE;
+
+    /** The directory. */
+    DIRECTORY,
+    /** The file. */
+    FILE,
+    /** The other. */
+    OTHER,
+    /** The other leaf. */
+    OTHER_LEAF,
+    /** The other node. */
+    OTHER_NODE;
   }
 
+  /**
+   * The Enum EnumResultState.
+   */
   public enum EnumResultState {
-    FAILED, SUCCEED;
+
+    /** The failed. */
+    FAILED,
+    /** The succeed. */
+    SUCCEED;
   }
 
+  /**
+   * The Class ExtendedPathItem.
+   */
   public class ExtendedPathItem extends PathItem implements Serializable {
 
+    /** The Constant serialVersionUID. */
     private static final long serialVersionUID = -154288367308892581L;
+
+    /** The computed size. */
     public final long computedSize;
+
+    /** The content sha 256. */
     public final BigInteger contentSha256;
+
+    /** The creation date. */
     public final Date creationDate;
+
+    /** The modification date. */
     public final Date modificationDate;
 
+    /**
+     * Instantiates a new extended path item.
+     *
+     * @param sha256 the sha 256
+     * @param parentSha256 the parent sha 256
+     * @param pathBeyondParent the path beyond parent
+     * @param itemType the item type
+     * @param creationDate the creation date
+     * @param modificationDate the modification date
+     * @param computedSize the computed size
+     * @param contentSha256 the content sha 256
+     */
     public ExtendedPathItem(BigInteger sha256, BigInteger parentSha256, String pathBeyondParent,
         EnumPathItemType itemType, Date creationDate, Date modificationDate, long computedSize,
         BigInteger contentSha256) {
@@ -48,15 +96,34 @@ public class FileSystemCalatog implements Serializable, Comparable<FileSystemCal
 
   }
 
+  /**
+   * The Class PathItem.
+   */
   public class PathItem implements Serializable, Comparable<PathItem> {
 
+    /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 484943314649154887L;
+
+    /** The item type. */
     public final EnumPathItemType itemType;
+
+    /** The parent sha 256. */
     public final BigInteger parentSha256;
+
+    /** The path beyond parent. */
     public final String pathBeyondParent;
 
+    /** The sha 256. */
     public final BigInteger sha256;
 
+    /**
+     * Instantiates a new path item.
+     *
+     * @param sha256 the sha 256
+     * @param parentSha256 the parent sha 256
+     * @param pathBeyondParent the path beyond parent
+     * @param itemType the item type
+     */
     public PathItem(BigInteger sha256, BigInteger parentSha256, String pathBeyondParent,
         EnumPathItemType itemType) {
       super();
@@ -66,6 +133,13 @@ public class FileSystemCalatog implements Serializable, Comparable<FileSystemCal
       this.itemType = itemType;
     }
 
+    /**
+     * Instantiates a new path item.
+     *
+     * @param parent the parent
+     * @param pathBeyondParent the path beyond parent
+     * @param itemType the item type
+     */
     public PathItem(PathItem parent, String pathBeyondParent, EnumPathItemType itemType) {
       this.parentSha256 = parent.sha256;
       this.pathBeyondParent = pathBeyondParent;
@@ -80,6 +154,12 @@ public class FileSystemCalatog implements Serializable, Comparable<FileSystemCal
 
     }
 
+    /**
+     * Compare to.
+     *
+     * @param o the o
+     * @return the int
+     */
     @Override
     public int compareTo(PathItem o) {
       if (o == null) {
@@ -88,6 +168,12 @@ public class FileSystemCalatog implements Serializable, Comparable<FileSystemCal
       return this.sha256.compareTo(o.sha256);
     }
 
+    /**
+     * Equals.
+     *
+     * @param obj the obj
+     * @return true, if successful
+     */
     @Override
     public boolean equals(Object obj) {
       if (obj == null && !PathItem.class.isAssignableFrom(obj.getClass())) {
@@ -99,11 +185,21 @@ public class FileSystemCalatog implements Serializable, Comparable<FileSystemCal
 
   }
 
+  /** The Constant CATALOG_EXECUTOR_THREADS. */
   public static final int CATALOG_EXECUTOR_THREADS = 3;
+
+  /** The md. */
   public static MessageDigest md = null;
 
+  /** The md semaphore. */
   public static Semaphore mdSemaphore = null;
 
+  /**
+   * Gets the sha 256 from path.
+   *
+   * @param path the path
+   * @return the sha 256 from path
+   */
   public static BigInteger getSha256FromPath(String path) {
     if (mdSemaphore == null) {
       mdSemaphore = new Semaphore(1);
@@ -137,36 +233,25 @@ public class FileSystemCalatog implements Serializable, Comparable<FileSystemCal
 
   }
 
-  /**
-   * Executor for async ops
-   */
+  /** Executor for async ops. */
   protected ScheduledThreadPoolExecutor executor;
-  /**
-   * File for extendedPathItem storage
-   */
+
+  /** File for extendedPathItem storage. */
   protected File extendedpathItemDataFile;
-  /**
-   * TreeSet for ExtendedPathItems
-   */
+
+  /** TreeSet for ExtendedPathItems. */
   protected TreeSet<ExtendedPathItem> extendedPathItems;
 
-  /**
-   * File for mainFileData
-   */
+  /** File for mainFileData. */
   protected File mainFile;
 
-  /**
-   * Info about this catalog
-   */
+  /** Info about this catalog. */
   protected Properties mainFileData;
 
-  /**
-   * File for PathItem storage
-   */
+  /** File for PathItem storage. */
   protected File pathItemDataFile;
-  /**
-   * TreeSet for PathItem
-   */
+
+  /** TreeSet for PathItem. */
   protected TreeSet<PathItem> pathItems;
 
   /**
@@ -174,16 +259,26 @@ public class FileSystemCalatog implements Serializable, Comparable<FileSystemCal
    */
   protected TreeSet<FileSystemCalatog> subCatalogs;
 
-  /**
-   * Main files of sub catalogs relative to main file of this catalog
-   */
+  /** Main files of sub catalogs relative to main file of this catalog. */
   protected TreeSet<File> subCatalogsMainFiles;
 
+  /**
+   * Adds the path item.
+   *
+   * @param pathItem the path item
+   * @return the future
+   */
   public Future<EnumResultState> addPathItem(PathItem pathItem) {
     return null;
 
   }
 
+  /**
+   * Compare to.
+   *
+   * @param o the o
+   * @return the int
+   */
   @Override
   public int compareTo(FileSystemCalatog o) {
     if (o == null) {
@@ -192,14 +287,30 @@ public class FileSystemCalatog implements Serializable, Comparable<FileSystemCal
     return this.getMainFile().compareTo(o.getMainFile());
   }
 
+  /**
+   * Gets the main file.
+   *
+   * @return the main file
+   */
   public File getMainFile() {
     return mainFile;
   }
 
+  /**
+   * Gets the sub catalogs.
+   *
+   * @return the sub catalogs
+   */
   public TreeSet<FileSystemCalatog> getSubCatalogs() {
     return subCatalogs;
   }
 
+  /**
+   * Inits the.
+   *
+   * @param config the config
+   * @return the enum result state
+   */
   public EnumResultState init(Properties config) {
     if (this.executor == null) {
       this.executor = new ScheduledThreadPoolExecutor(CATALOG_EXECUTOR_THREADS);
@@ -221,15 +332,31 @@ public class FileSystemCalatog implements Serializable, Comparable<FileSystemCal
     return EnumResultState.FAILED;
   }
 
+  /**
+   * Checks if is ready.
+   *
+   * @return true, if is ready
+   */
   public boolean isReady() {
     return false;
   }
 
+  /**
+   * Load catalog.
+   *
+   * @param mainFile the main file
+   * @return the future
+   */
   public Future<EnumResultState> loadCatalog(File mainFile) {
     return null;
 
   }
 
+  /**
+   * Save catalog.
+   *
+   * @return the future
+   */
   public Future<EnumResultState> saveCatalog() {
     return null;
 

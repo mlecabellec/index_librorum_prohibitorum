@@ -3,6 +3,10 @@ package fr.lecabellec.ilp;
 import java.nio.file.Path;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class Crawler.
+ */
 public class Crawler {
 
   /**
@@ -20,9 +24,9 @@ public class Crawler {
   protected final ScheduledThreadPoolExecutor executor;
 
   /**
+   * The Enum EnumCrawlerStatus.
    *
    * @author vortigern
-   *
    */
   public enum EnumCrawlerStatus {
     /**
@@ -37,21 +41,17 @@ public class Crawler {
      * Working hard.
      */
     CRAWLER_STATUS_RUNNING,
-    /**
-     *
-     */
+
+    /** The crawler status done. */
     CRAWLER_STATUS_DONE,
-    /**
-     *
-     */
+
+    /** The crawler status done with warnings. */
     CRAWLER_STATUS_DONE_WITH_WARNINGS,
-    /**
-     *
-     */
+
+    /** The crawler status done with errors. */
     CRAWLER_STATUS_DONE_WITH_ERRORS,
-    /**
-     *
-     */
+
+    /** The crawler status failed. */
     CRAWLER_STATUS_FAILED;
 
   }
@@ -62,9 +62,11 @@ public class Crawler {
   protected EnumCrawlerStatus status;
 
   /**
+   * Instantiates a new crawler.
    *
-   * @param startPath
-   * @param parentCrawler
+   * @param startPath the start path
+   * @param parentCrawler the parent crawler
+   * @param executor the executor
    */
   public Crawler(Path startPath, Crawler parentCrawler, ScheduledThreadPoolExecutor executor) {
     super();
