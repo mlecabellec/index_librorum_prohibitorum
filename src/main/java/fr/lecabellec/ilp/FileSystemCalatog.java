@@ -72,6 +72,9 @@ public class FileSystemCalatog implements Serializable, Comparable<FileSystemCal
   /** The md semaphore. */
   public static Semaphore mdSemaphore = null;
 
+  /** The add item semaphore. */
+  protected Semaphore addItemSemaphore = null;
+
   /**
    * Gets the sha 256 from path.
    *
@@ -98,8 +101,7 @@ public class FileSystemCalatog implements Serializable, Comparable<FileSystemCal
       try {
         md = MessageDigest.getInstance("SHA-256");
       } catch (NoSuchAlgorithmException e) {
-        LOG
-            .severe("MessageDigest.getInstance(\"SHA-256\") got a NoSuchAlgorithmException !!!");
+        LOG.severe("MessageDigest.getInstance(\"SHA-256\") got a NoSuchAlgorithmException !!!");
         Runtime.getRuntime().exit(666);
       }
     }
@@ -114,9 +116,6 @@ public class FileSystemCalatog implements Serializable, Comparable<FileSystemCal
   /** Executor for async ops. */
   protected ScheduledThreadPoolExecutor executor;
 
-  /** File for extendedPathItem storage. */
-  protected File extendedpathItemDataFile;
-
   /** TreeSet for ExtendedPathItems. */
   protected TreeSet<ExtendedPathItem> extendedPathItems;
 
@@ -128,7 +127,10 @@ public class FileSystemCalatog implements Serializable, Comparable<FileSystemCal
 
   /** File for PathItem storage. */
   protected File pathItemDataFile;
-  
+
+  /** The extended path item data file. */
+  protected File extendedPathItemDataFile;
+
   /** TreeSet for PathItem. */
   protected TreeSet<PathItem> pathItems;
 
@@ -147,6 +149,17 @@ public class FileSystemCalatog implements Serializable, Comparable<FileSystemCal
    * @return the future
    */
   public Future<EnumResultState> addPathItem(PathItem pathItem) {
+    return null;
+
+  }
+
+  /**
+   * Adds the extended path item.
+   *
+   * @param pathItem the path item
+   * @return the future
+   */
+  public Future<EnumResultState> addExtendedPathItem(PathItem pathItem) {
     return null;
 
   }
@@ -207,6 +220,8 @@ public class FileSystemCalatog implements Serializable, Comparable<FileSystemCal
 
     }
 
+    this.addItemSemaphore = new Semaphore(1);
+
     if (!defaults.entrySet().stream().allMatch(e -> this.mainFileData.containsKey(e.getKey()))) {
       LOG.log(Level.SEVERE, "Failed to ensure correct configuration");
       return EnumResultState.FAILED;
@@ -216,16 +231,67 @@ public class FileSystemCalatog implements Serializable, Comparable<FileSystemCal
       File baseCatalogDirFile = new File(
           this.mainFileData.getProperty(CONFIG_KEY_BASE_CATALOG_DIR));
       if (!baseCatalogDirFile.isDirectory() || !baseCatalogDirFile.canWrite()) {
-        LOG.log(Level.SEVERE,
-            "CONFIG_KEY_BASE_CATALOG_DIR config is not good");
+        LOG.log(Level.SEVERE, "CONFIG_KEY_BASE_CATALOG_DIR config is not good");
         return EnumResultState.FAILED;
 
       }
 
       try {
-        this.mainFile = new File(this.mainFileData.getProperty(CONFIG_KEY_CATALOG_ID));
+        this.mainFile = new File(baseCatalogDirFile,
+            this.mainFileData.getProperty(CONFIG_KEY_CATALOG_ID) + ".properties");
         if (!this.mainFile.exists() && !this.mainFile.createNewFile()) {
           LOG.log(Level.SEVERE, "Failed to create catalog main file.");
+          return EnumResultState.FAILED;
+
+        }
+      } catch (IOException e1) {
+        LOG.log(Level.SEVERE, "Failed to create file", e1);
+        return EnumResultState.FAILED;
+
+      }
+
+    }
+
+    if (this.pathItemDataFile == null) {
+      File baseCatalogDirFile = new File(
+          this.mainFileData.getProperty(CONFIG_KEY_BASE_CATALOG_DIR));
+      if (!baseCatalogDirFile.isDirectory() || !baseCatalogDirFile.canWrite()) {
+        LOG.log(Level.SEVERE, "CONFIG_KEY_BASE_CATALOG_DIR config is not good");
+        return EnumResultState.FAILED;
+
+      }
+
+      try {
+        this.pathItemDataFile = new File(baseCatalogDirFile,
+            this.mainFileData.getProperty(CONFIG_KEY_CATALOG_ID) + ".pathItems");
+        if (!this.pathItemDataFile.exists() && !this.pathItemDataFile.createNewFile()) {
+          LOG.log(Level.SEVERE, "Failed to create catalog pathItems file.");
+          return EnumResultState.FAILED;
+
+        }
+      } catch (IOException e1) {
+        LOG.log(Level.SEVERE, "Failed to create file", e1);
+        return EnumResultState.FAILED;
+
+      }
+
+    }
+
+    if (this.extendedPathItemDataFile == null) {
+      File baseCatalogDirFile = new File(
+          this.mainFileData.getProperty(CONFIG_KEY_BASE_CATALOG_DIR));
+      if (!baseCatalogDirFile.isDirectory() || !baseCatalogDirFile.canWrite()) {
+        LOG.log(Level.SEVERE, "CONFIG_KEY_BASE_CATALOG_DIR config is not good");
+        return EnumResultState.FAILED;
+
+      }
+
+      try {
+        this.extendedPathItemDataFile = new File(baseCatalogDirFile,
+            this.mainFileData.getProperty(CONFIG_KEY_CATALOG_ID) + ".pathItems");
+        if (!this.extendedPathItemDataFile.exists()
+            && !this.extendedPathItemDataFile.createNewFile()) {
+          LOG.log(Level.SEVERE, "Failed to create catalog pathItems file.");
           return EnumResultState.FAILED;
 
         }
@@ -268,6 +334,96 @@ public class FileSystemCalatog implements Serializable, Comparable<FileSystemCal
   public Future<EnumResultState> saveCatalog() {
     return null;
 
+  }
+
+  /**
+   * Gets the executor.
+   *
+   * @return the executor
+   */
+  public ScheduledThreadPoolExecutor getExecutor() {
+    return this.executor;
+  }
+
+  /**
+   * Sets the executor.
+   *
+   * @param executor the new executor
+   */
+  public void setExecutor(ScheduledThreadPoolExecutor executor) {
+    this.executor = executor;
+  }
+
+  /**
+   * Gets the path item data file.
+   *
+   * @return the path item data file
+   */
+  public File getPathItemDataFile() {
+    return this.pathItemDataFile;
+  }
+
+  /**
+   * Sets the path item data file.
+   *
+   * @param pathItemDataFile the new path item data file
+   */
+  public void setPathItemDataFile(File pathItemDataFile) {
+    this.pathItemDataFile = pathItemDataFile;
+  }
+
+  /**
+   * Gets the extended path item data file.
+   *
+   * @return the extended path item data file
+   */
+  public File getExtendedPathItemDataFile() {
+    return this.extendedPathItemDataFile;
+  }
+
+  /**
+   * Sets the extended path item data file.
+   *
+   * @param extendedPathItemDataFile the new extended path item data file
+   */
+  public void setExtendedPathItemDataFile(File extendedPathItemDataFile) {
+    this.extendedPathItemDataFile = extendedPathItemDataFile;
+  }
+
+  /**
+   * Gets the extended path items.
+   *
+   * @return the extended path items
+   */
+  public TreeSet<ExtendedPathItem> getExtendedPathItems() {
+    return this.extendedPathItems;
+  }
+
+  /**
+   * Gets the main file data.
+   *
+   * @return the main file data
+   */
+  public Properties getMainFileData() {
+    return this.mainFileData;
+  }
+
+  /**
+   * Gets the path items.
+   *
+   * @return the path items
+   */
+  public TreeSet<PathItem> getPathItems() {
+    return this.pathItems;
+  }
+
+  /**
+   * Sets the main file.
+   *
+   * @param mainFile the new main file
+   */
+  public void setMainFile(File mainFile) {
+    this.mainFile = mainFile;
   }
 
 }

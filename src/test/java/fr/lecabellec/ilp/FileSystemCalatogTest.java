@@ -10,18 +10,28 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigInteger;
+import java.util.Properties;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import fr.lecabellec.ilp.FileSystemCalatog.EnumPathItemType;
+import fr.lecabellec.ilp.FileSystemCalatog.EnumResultState;
 
+/**
+ * The Class FileSystemCalatogTest.
+ */
 class FileSystemCalatogTest {
 
+  /** The Constant LOG. */
+  public static final Logger LOG = Logger.getLogger(FileSystemCalatogTest.class.getCanonicalName());
+  
   @Test
   void testSomeIdeasAboutSerialization() {
+    LOG.info("Entering testSomeIdeasAboutSerialization...");
     TreeSet<PathItem> t1 = new TreeSet<>();
     PathItem p1 = new PathItem(BigInteger.ONE, BigInteger.TEN, "/", EnumPathItemType.DIRECTORY);
     t1.add(p1);
@@ -70,7 +80,7 @@ class FileSystemCalatogTest {
 
   @Test
   void testGetSha256FromPath() {
-
+    LOG.info("Entering testGetSha256FromPath...");
     BigInteger sha1 = FileSystemCalatog.getSha256FromPath("aaaaa");
     BigInteger sha2 = FileSystemCalatog.getSha256FromPath("aaaaa");
     BigInteger sha3 = FileSystemCalatog.getSha256FromPath("aaaab");
@@ -87,21 +97,28 @@ class FileSystemCalatogTest {
 
   }
 
+  /**
+   * Test add path item.
+   */
+  @Disabled
   @Test
   void testAddPathItem() {
     fail("Not yet implemented");
   }
 
+  @Disabled
   @Test
   void testCompareTo() {
     fail("Not yet implemented");
   }
 
+  @Disabled
   @Test
   void testGetMainFile() {
     fail("Not yet implemented");
   }
 
+  @Disabled
   @Test
   void testGetSubCatalogs() {
     fail("Not yet implemented");
@@ -109,19 +126,32 @@ class FileSystemCalatogTest {
 
   @Test
   void testInit() {
-    fail("Not yet implemented");
+    LOG.info("Entering testInit...");
+    FileSystemCalatog fsc = new FileSystemCalatog();
+    assertTrue(fsc.init(new Properties()) == EnumResultState.SUCCEED, "Init with empty props");
+    assertTrue(fsc.getMainFile().exists(), "Main file exists");
+    assertTrue(fsc.getPathItemDataFile().exists(), "PathItem file exists");
+    assertTrue(fsc.getExtendedPathItemDataFile().exists(), "ExtendedPathItem file exists");
+    
+    fsc.getMainFile().delete();
+    fsc.getPathItemDataFile().delete();
+    fsc.getExtendedPathItemDataFile().delete();
+    
   }
 
+  @Disabled
   @Test
   void testIsReady() {
     fail("Not yet implemented");
   }
-
+  
+  @Disabled
   @Test
   void testLoadCatalog() {
     fail("Not yet implemented");
   }
 
+  @Disabled
   @Test
   void testSaveCatalog() {
     fail("Not yet implemented");
